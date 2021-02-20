@@ -19,7 +19,7 @@ Step 6) Check if it's installed by running C4 test, as instructed by the install
 # Docs
 C4 help shows the available commands for the C4 compiler. You can also just type C4 with no arguments.
 
-To build and run a file quickly: C4 run <filename>
+To build and run a file quickly: C4 run \<filename\>
 
 To just build a file to be ran later: C4 build <filename>
 
@@ -31,7 +31,7 @@ This means to uninstall C4, you must uninstall golang.
 
 Currently golang doesn't always fully uninstall itself, so after you uninstall golang, 
 
-You must delete <Main OS Drive Root>/Go - ex. C:/Go, /Go, etc.
+You must delete \<Main OS Drive Root\>/Go - ex. C:/Go, /Go, etc.
 
 Then, when you reinstall golang if you still want to use go, you won't have C4 anymore.
 
