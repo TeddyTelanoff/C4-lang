@@ -4,7 +4,7 @@
 # WIP, unusable atm.
 
 # Installation
-Step 1) Install golang. Really easy installation, cross platform.
+Step 1) Install golang. Really easy installation, cross platform. If the go command doesn't work, make sure you added Go/bin to your path.
 
 Step 2) Clone the C4-lang repo. Can be as simple as downloading and extracting the zip.
 
