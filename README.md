@@ -8,9 +8,9 @@ Step 1) Install golang. Really easy installation, cross platform. If the go comm
 
 Step 2) Clone the C4-lang repo. Can be as simple as downloading and extracting the zip.
 
-Step 3) Open the root folder with a command processor. The same folder containing this README file.
+Step 3) Open the root folder with an admin command processor. The same folder containing this README file.
 
-Step 4) Enter the command: go run .
+Step 4) Enter the command: go run run.go
 
 Step 5) C4 should now be installed. You can use the command C4 anywhere where you can use the go command.
 
