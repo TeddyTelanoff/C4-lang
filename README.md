@@ -22,3 +22,21 @@ C4 help shows the available commands for the C4 compiler. You can also just type
 To build and run a file quickly: C4 run <filename>
 
 To just build a file to be ran later: C4 build <filename>
+
+
+# Uninstall
+C4 attaches itself to golang to ensure simple cross platform use.
+
+This means to uninstall C4, you must uninstall golang.
+
+Currently golang doesn't always fully uninstall itself, so after you uninstall golang, 
+
+You must delete <Main OS Drive Root>/Go - ex. C:/Go, /Go, etc.
+
+Then, when you reinstall golang if you still want to use go, you won't have C4 anymore.
+
+So, if this language causes issues or you don't want it anymore, you can do this.
+
+But, if you want to help make C4 better, please submit an issue here.
+
+I'm always looking to improve.
