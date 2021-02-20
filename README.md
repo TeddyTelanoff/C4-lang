@@ -31,7 +31,9 @@ This means to uninstall C4, you must uninstall golang.
 
 Currently golang doesn't always fully uninstall itself, so after you uninstall golang, 
 
-You must delete \<Main OS Drive Root\>/Go - ex. C:/Go, /Go, etc.
+You must find and delete the installation folder containing the go command. 
+
+This is located in the path variable if that helps.
 
 Then, when you reinstall golang if you still want to use go, you won't have C4 anymore.
 
