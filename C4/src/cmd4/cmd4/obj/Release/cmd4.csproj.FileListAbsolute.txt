@@ -1,0 +1,6 @@
+C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\bin\Release\cmd4.exe.config
+C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\bin\Release\cmd4.exe
+C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\bin\Release\cmd4.pdb
+C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\obj\Release\cmd4.csproj.CoreCompileInputs.cache
+C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\obj\Release\cmd4.exe
+C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\obj\Release\cmd4.pdb

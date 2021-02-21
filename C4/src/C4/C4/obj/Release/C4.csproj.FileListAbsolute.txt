@@ -1,0 +1,7 @@
+C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\C4\C4\bin\Release\C4.exe.config
+C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\C4\C4\bin\Release\C4.exe
+C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\C4\C4\bin\Release\C4.pdb
+C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\C4\C4\obj\Release\C4.csprojAssemblyReference.cache
+C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\C4\C4\obj\Release\C4.csproj.CoreCompileInputs.cache
+C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\C4\C4\obj\Release\C4.exe
+C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\C4\C4\obj\Release\C4.pdb
