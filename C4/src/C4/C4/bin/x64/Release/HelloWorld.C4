@@ -1,0 +1,12 @@
+#include <stdio.h>
+#include <strings.h>
+
+namespace HelloWorld
+{
+    public class Hello {         
+        static void Main(string[] args)
+        {
+            std.puts("Hello World!");
+        }
+    }
+}

@@ -6,6 +6,8 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Reflection.Metadata;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +18,7 @@ namespace C4
     {
         static void Main(string[] args)
         {
+            MainPath = "";
             if (!HasAdministratorPrivileges())
             {
                 Console.WriteLine("Please only use this command in cmd4! To open cmd4, open cmd and run cmd4, or press win+r and enter cmd4.");
@@ -71,6 +74,9 @@ namespace C4
                                     string CPP_SRC = "";
                                     debug = false;
                                     AST2CPP(ROOT, ref CPP_SRC);
+                                    CPP_SRC += Environment.NewLine + Environment.NewLine +
+                                        "int main() {" + Environment.NewLine + MainPath.Replace(".", "::") + 
+                                        "();" + Environment.NewLine + "}" + Environment.NewLine;
                                     File.WriteAllText("output.cpp", CPP_SRC);
                                     CPP_SRC = "";
                                     debug = true;
@@ -132,6 +138,7 @@ namespace C4
 
         private static void AST2CPP(CSharpSyntaxNode ROOT, ref string CPP_SRC)
         {
+            CodeBlock b = null;
             if (debug)
             {
                 for (int j = 0; j <= level; j++)
@@ -143,21 +150,159 @@ namespace C4
             else
             {
                 List<CodeBlock> codeBlocks = new List<CodeBlock>();
-                codeBlocks.Add(new Hash());
+                foreach (Type type in Assembly.GetExecutingAssembly().
+                    GetTypes().Where(t => t != typeof(CodeBlock) && t.IsSubclassOf(typeof(CodeBlock))))
+                {
+                    codeBlocks.Add((CodeBlock)Activator.CreateInstance(type, false));
+                }
                 foreach (CodeBlock codeBlock in codeBlocks)
                 {
                     if (codeBlock.IsMatch(ROOT))
                     {
                         CPP_SRC += codeBlock.GetCode(ROOT);
+                        b = codeBlock;
                     }
                 }
             }
+            if (!debug && b != null) CPP_SRC += b.GetBody().Split(new string[] { "%BODY%" }, StringSplitOptions.None)[0];
             level++;
             foreach (CSharpSyntaxNode node in ROOT.ChildNodes())
             {
                 AST2CPP(node, ref CPP_SRC);
             }
             level--;
+            if (!debug && b != null) CPP_SRC += b.GetBody().Split(new string[] { "%BODY%" }, StringSplitOptions.None)[1];
+            if (b != null && b.GetBody().ToCharArray().Contains('{') && b.GetBody().ToCharArray().Contains('}'))
+            {
+                List<string> lst = FullName.Split('.').ToList();
+                if (lst.Any()) lst.RemoveAt(lst.Count - 1);
+                if (!debug) FullName = string.Join(".", lst);
+            }
+        }
+
+        static string FullName = "";
+        static string MainPath = "";
+
+        public class MethodDeclaration : CodeBlock
+        {
+            public override string GetCode(CSharpSyntaxNode Node)
+            {
+                if (Node.Kind() == SyntaxKind.MethodDeclaration)
+                {
+                    string name = Node.ChildTokens().ToList()[Node.ChildTokens().Count() - 1].ToString();
+                    FullName += "." + name + ".";
+                    FullName = string.Join(".", FullName.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries));
+                    if (name == "Main") MainPath = FullName;
+                    string[] arr = Node.ChildTokens().ToList().Select(t => t.ToString()).ToArray();
+                    if (Node.HasChildKind(SyntaxKind.PredefinedType))
+                    {
+                        string T = Node.Kind2Child(SyntaxKind.PredefinedType).ChildTokens().ToList()[0].ToString();
+                        return (arr.Contains("public") ? "public: " : "") + 
+                            (arr.Contains("private") ? "private: " : "") + 
+                            (arr.Contains("static") ? "static " : "") + T + " " + name + Environment.NewLine;
+                    }
+                }
+                foreach (CSharpSyntaxNode node in Node.ChildNodes())
+                {
+                    string code = GetCode(node);
+                    if (code != null) return code;
+                }
+                return null;
+            }
+
+            public override bool IsMatch(CSharpSyntaxNode Node)
+            {
+                if (Node.Kind() == SyntaxKind.MethodDeclaration)
+                {
+                    if (Node.HasChildKind(SyntaxKind.PredefinedType))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            public override string GetBody()
+            {
+                return "{" + Environment.NewLine + "%BODY%" + Environment.NewLine + "}" + Environment.NewLine;
+            }
+        }
+
+        public class ClassDeclaration : CodeBlock
+        {
+            public override string GetCode(CSharpSyntaxNode Node)
+            {
+                if (Node.Kind() == SyntaxKind.ClassDeclaration)
+                {
+                    string name =  Node.ChildTokens().ToList()[Node.ChildTokens().Count() - 3].ToString();
+                    FullName += "." + name + ".";
+                    FullName = string.Join(".", FullName.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries));
+                    string[] arr = Node.ChildTokens().ToList().Select(t => t.ToString()).ToArray();
+                    return (arr.Contains("static") ? "static " : "") + "class " + name + Environment.NewLine;
+                }
+                foreach (CSharpSyntaxNode node in Node.ChildNodes())
+                {
+                    string code = GetCode(node);
+                    if (code != null) return code;
+                }
+                return null;
+            }
+
+            public override bool IsMatch(CSharpSyntaxNode Node)
+            {
+                if (Node.Kind() == SyntaxKind.ClassDeclaration)
+                {
+                    return true;
+                }
+                return false;
+            }
+
+            public override string GetBody()
+            {
+                return "{" + Environment.NewLine + "%BODY%" + Environment.NewLine + "};" + Environment.NewLine;
+            }
+        }
+
+        public class NamespaceDeclaration : CodeBlock
+        {
+            public override string GetCode(CSharpSyntaxNode Node)
+            {
+                if (Node.Kind() == SyntaxKind.NamespaceDeclaration)
+                {
+                    if (Node.HasChildKind(SyntaxKind.IdentifierName))
+                    {
+                        FullName += "." + Node.Kind2Child(SyntaxKind.IdentifierName).
+                            ChildTokens().ToList()[0].ToString() + ".";
+                        FullName = string.Join(".", FullName.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries));
+                        return "namespace " + 
+                            Node.Kind2Child(SyntaxKind.IdentifierName).
+                            ChildTokens().ToList()[0].ToString() + Environment.NewLine;
+                    }
+                }
+                foreach (CSharpSyntaxNode node in Node.ChildNodes())
+                {
+                    string code = GetCode(node);
+                    if (code != null) return code;
+                }
+                return null;
+            }
+
+            public override bool IsMatch(CSharpSyntaxNode Node)
+            {
+                if (Node.Kind() == SyntaxKind.NamespaceDeclaration)
+                {
+                    if (Node.HasChildKind(SyntaxKind.IdentifierName))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            public override string GetBody()
+            {
+                return "{" + Environment.NewLine + "%BODY%" + Environment.NewLine + "}" + Environment.NewLine;
+            }
         }
 
         public class Hash : CodeBlock
@@ -200,6 +345,7 @@ namespace C4
         {
             public abstract bool IsMatch(CSharpSyntaxNode Node);
             public abstract string GetCode(CSharpSyntaxNode Node);
+            public virtual string GetBody() { return "%BODY%"; }
         }
 
         private static bool HasAdministratorPrivileges()
@@ -223,16 +369,40 @@ namespace C4
             if (node.Parent != null) return HasParentKind(node.Parent, kind);
             else return false;
         }
-        public static SyntaxNode Token2Parent(this SyntaxNode node, SyntaxToken token)
+        public static SyntaxNode Token2Parent(this SyntaxNode node, string token)
         {
-            if (node.ChildTokens().Any(t => t == token)) return node;
+            if (node.ChildTokens().Any(t => t.ToString() == token)) return node;
             if (node.Parent != null && Token2Parent(node.Parent, token) != null) return Token2Parent(node.Parent, token);
             else return null;
         }
-        public static bool HasParentToken(this SyntaxNode node, SyntaxToken token)
+        public static bool HasParentToken(this SyntaxNode node, string token)
         {
-            if (node.ChildTokens().Any(t => t == token)) return true;
+            if (node.ChildTokens().Any(t => t.ToString() == token)) return true;
             if (node.Parent != null) return HasParentToken(node.Parent, token);
+            else return false;
+        }
+        public static SyntaxNode Kind2Child(this SyntaxNode node, SyntaxKind kind)
+        {
+            if (node.Kind() == kind) return node;
+            if (node.ChildNodes().Any(c => Kind2Child(c, kind) != null)) return node.ChildNodes().First(c => Kind2Child(c, kind) != null);
+            else return null;
+        }
+        public static bool HasChildKind(this SyntaxNode node, SyntaxKind kind)
+        {
+            if (node.Kind() == kind) return true;
+            if (node.ChildNodes().Any(c => HasChildKind(c, kind))) return true;
+            else return false;
+        }
+        public static SyntaxNode Token2Child(this SyntaxNode node, string token)
+        {
+            if (node.ChildTokens().Any(t => t.ToString() == token)) return node;
+            if (node.ChildNodes().Any(c => Token2Child(c, token) != null)) return node.ChildNodes().First(c => Token2Child(c, token) != null);
+            else return null;
+        }
+        public static bool HasChildToken(this SyntaxNode node, string token)
+        {
+            if (node.ChildTokens().Any(t => t.ToString() == token)) return true;
+            if (node.ChildNodes().Any(c => HasChildToken(c, token))) return true;
             else return false;
         }
     }

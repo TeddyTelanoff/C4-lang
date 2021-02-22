@@ -4,3 +4,10 @@ C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\bin\x64\Release\cmd
 C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\obj\x64\Release\cmd4.csproj.CoreCompileInputs.cache
 C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\obj\x64\Release\cmd4.exe
 C:\Users\mtheumann\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\obj\x64\Release\cmd4.pdb
+C:\Users\hkarrson\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\bin\x64\Release\cmd4.exe.config
+C:\Users\hkarrson\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\bin\x64\Release\cmd4.exe
+C:\Users\hkarrson\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\bin\x64\Release\cmd4.pdb
+C:\Users\hkarrson\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\obj\x64\Release\cmd4.csprojAssemblyReference.cache
+C:\Users\hkarrson\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\obj\x64\Release\cmd4.csproj.CoreCompileInputs.cache
+C:\Users\hkarrson\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\obj\x64\Release\cmd4.exe
+C:\Users\hkarrson\Documents\GitHub\C4-lang\C4\src\cmd4\cmd4\obj\x64\Release\cmd4.pdb
