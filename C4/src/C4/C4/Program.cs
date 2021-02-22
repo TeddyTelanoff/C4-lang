@@ -190,16 +190,15 @@ namespace C4
                 if (Node.Kind() == SyntaxKind.MethodDeclaration)
                 {
                     string name = Node.ChildTokens().ToList()[Node.ChildTokens().Count() - 1].ToString();
-                    FullName += "." + name + ".";
+                    FullName += $".{name}.";
                     FullName = string.Join(".", FullName.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries));
                     if (name == "Main") MainPath = FullName;
                     string[] arr = Node.ChildTokens().ToList().Select(t => t.ToString()).ToArray();
                     if (Node.HasChildKind(SyntaxKind.PredefinedType))
                     {
                         string T = Node.Kind2Child(SyntaxKind.PredefinedType).ChildTokens().ToList()[0].ToString();
-                        return (arr.Contains("public") ? "public: " : "") + 
-                            (arr.Contains("private") ? "private: " : "") + 
-                            (arr.Contains("static") ? "static " : "") + T + " " + name + Environment.NewLine;
+                        string mod = (arr.Contains("public") ? "public: " : "") + (arr.Contains("private") ? "private: " : "") + (arr.Contains("static") ? "static " : "");
+                        return $"{mod}{T} {name}{Environment.NewLine}";
                     }
                 }
                 foreach (CSharpSyntaxNode node in Node.ChildNodes())
@@ -222,10 +221,7 @@ namespace C4
                 return false;
             }
 
-            public override string GetBody()
-            {
-                return "{" + Environment.NewLine + "%BODY%" + Environment.NewLine + "}" + Environment.NewLine;
-            }
+            public override string GetBody() => $"{{{Environment.NewLine}%BODY%{Environment.NewLine}}}{Environment.NewLine}";
         }
 
         public class ClassDeclaration : CodeBlock
@@ -235,7 +231,7 @@ namespace C4
                 if (Node.Kind() == SyntaxKind.ClassDeclaration)
                 {
                     string name =  Node.ChildTokens().ToList()[Node.ChildTokens().Count() - 3].ToString();
-                    FullName += "." + name + ".";
+                    FullName += $".{name}.";
                     FullName = string.Join(".", FullName.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries));
                     string[] arr = Node.ChildTokens().ToList().Select(t => t.ToString()).ToArray();
                     return (arr.Contains("static") ? "static " : "") + "class " + name + Environment.NewLine;
@@ -257,10 +253,7 @@ namespace C4
                 return false;
             }
 
-            public override string GetBody()
-            {
-                return "{" + Environment.NewLine + "%BODY%" + Environment.NewLine + "};" + Environment.NewLine;
-            }
+            public override string GetBody() => $"{{{Environment.NewLine}%BODY%{Environment.NewLine}}};{Environment.NewLine}";
         }
 
         public class NamespaceDeclaration : CodeBlock
@@ -299,10 +292,7 @@ namespace C4
                 return false;
             }
 
-            public override string GetBody()
-            {
-                return "{" + Environment.NewLine + "%BODY%" + Environment.NewLine + "}" + Environment.NewLine;
-            }
+            public override string GetBody() => $"{{{Environment.NewLine}%BODY%{Environment.NewLine}}}{Environment.NewLine}";
         }
 
         public class Hash : CodeBlock
@@ -345,7 +335,7 @@ namespace C4
         {
             public abstract bool IsMatch(CSharpSyntaxNode Node);
             public abstract string GetCode(CSharpSyntaxNode Node);
-            public virtual string GetBody() { return "%BODY%"; }
+            public virtual string GetBody() => "%BODY%";
         }
 
         private static bool HasAdministratorPrivileges()
