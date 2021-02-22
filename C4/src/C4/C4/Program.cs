@@ -1,4 +1,6 @@
-﻿using Microsoft.CodeAnalysis;
+﻿// Add libraries through nuget and here.
+#region usings
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System;
 using System.CodeDom;
@@ -11,113 +13,132 @@ using System.Reflection.Metadata;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+#endregion
 
+// C4 CLI (Command Line Interface)
 namespace C4
 {
+    // Main Class
     class Program
     {
+        // Main method - Takes input, processes, and provides output.
         static void Main(string[] args)
         {
+            // This will be the main method's fully qualified name once it is found. The last step in the C++ code gen is to add the C++ main method which calls this.
             MainPath = "";
+            
+            // This ensures the command has admin. There's a helpful command you can call anywhere called cmd4 which autocalls cmd with admin.
             if (!HasAdministratorPrivileges())
             {
                 Console.WriteLine("Please only use this command in cmd4! To open cmd4, open cmd and run cmd4, or press win+r and enter cmd4.");
                 return;
             }
-            if (File.Exists(@"C:\C4\bin\C4_Status") && File.ReadAllText(@"C:\C4\bin\C4_Status") == "OK")
-            {
-                if (args.Length <= 0 || (args.Length >= 1 &&
-                    args[0].ToLower().StartsWith("help") ||
-                    args[0].StartsWith(@"/?") || args[0].StartsWith(@"\?") || args[0].StartsWith(@"?")))
-                {
-                    Console.WriteLine("Build and run: C4 run filename.C4");
-                    Console.WriteLine("Build only: C4 build filename.C4");
-                }
-                else if (args.Length >= 1)
-                {
-                    if (args[0] == "run")
-                    {
-                        if (args.Length >= 2)
-                        {
-                            string fn = args[1];
-                            //TODO
-                            Console.WriteLine("//TODO");
-                        }
-                        else
-                        {
-                            ConsoleColor color = Console.ForegroundColor;
-                            Console.Write("Build and run: C4 run ");
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.Write("-->");
-                            Console.ForegroundColor = color;
-                            Console.WriteLine("filename.C4");
-                        }
-                    }
-                    if (args[0] == "build")
-                    {
-                        if (args.Length >= 2)
-                        {
-                            string fn = args[1];
-                            if (args.Length >= 3)
-                            {
-                                if (args[2] == "-CPP")
-                                {
-                                    string C4_SRC = File.ReadAllText(fn);
-                                    string CS_SRC_SAFE = "";
-                                    foreach (string ln in C4_SRC.Split(new char[] {'\n', '\r'}, StringSplitOptions.RemoveEmptyEntries))
-                                    {
-                                        if (ln.StartsWith(@"#")) CS_SRC_SAFE += "CPP_SPECIAL_CHAR(\"HASH\", " + ToLiteral(ln) + ");" + Environment.NewLine;
-                                        else CS_SRC_SAFE += ln + Environment.NewLine;
-                                    }
-                                    var AST = CSharpSyntaxTree.ParseText(CS_SRC_SAFE);
-                                    CSharpSyntaxNode ROOT = (CSharpSyntaxNode)AST.GetRoot();
-                                    string CPP_SRC = "";
-                                    debug = false;
-                                    AST2CPP(ROOT, ref CPP_SRC);
-                                    CPP_SRC += Environment.NewLine + Environment.NewLine +
-                                        "int main() {" + Environment.NewLine + MainPath.Replace(".", "::") + 
-                                        "();" + Environment.NewLine + "}" + Environment.NewLine;
-                                    File.WriteAllText("output.cpp", CPP_SRC);
-                                    CPP_SRC = "";
-                                    debug = true;
-                                    AST2CPP(ROOT, ref CPP_SRC);
-                                    File.WriteAllText("output.ast", CPP_SRC);
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Invalid argument: " + args[2]);
-                                }
-                            }
-                            else
-                            {
-                                //TODO
-                                Console.WriteLine("//TODO");
-                            }
-                        }
-                        else
-                        {
-                            ConsoleColor color = Console.ForegroundColor;
-                            Console.Write("Build and run: C4 build ");
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.Write("-->");
-                            Console.ForegroundColor = color;
-                            Console.WriteLine("filename.C4");
-                        }
-                    }
-                }
-            }
-            else if (!(args.Length >= 1 && args[0] == "detonate"))
-            {
-                Console.WriteLine("Run C4 detonate to complete the installation.");
-            }
+
+            // This is a test user's can do to check if C4 was installed, AKA if the app is running, which we know it is.
             if (args.Length >= 1 && args[0] == "detonate")
             {
-                if (File.Exists(@"C:\C4\bin\C4_Status")) File.Delete(@"C:\C4\bin\C4_Status");
-                File.WriteAllText(@"C:\C4\bin\C4_Status", "OK");
                 ConsoleColor color = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("KABOOM!!! C4 is now installed on your machine!");
                 Console.ForegroundColor = color;
+            }
+            
+            // Give help.
+            if (args.Length <= 0 || (args.Length >= 1 &&
+                args[0].ToLower().StartsWith("help") ||
+                args[0].StartsWith(@"/?") || args[0].StartsWith(@"\?") || args[0].StartsWith(@"?")))
+            {
+                Console.WriteLine("Build and run: C4 run filename.C4");
+                Console.WriteLine("Build only: C4 build filename.C4");
+            }
+            else if (args.Length >= 1)
+            {
+                // Run a C4 source file (Build and run) (TODO)
+                if (args[0] == "run")
+                {
+                    if (args.Length >= 2)
+                    {
+                        string fn = args[1];
+                        //TODO
+                        Console.WriteLine("//TODO");
+                    }
+                    else
+                    {
+                        ConsoleColor color = Console.ForegroundColor;
+                        Console.Write("Build and run: C4 run ");
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write("-->");
+                        Console.ForegroundColor = color;
+                        Console.WriteLine("filename.C4");
+                    }
+                }
+                // Build a C4 source file. (Should eventually build the whole program, using just the main file.)
+                if (args[0] == "build")
+                {
+                    if (args.Length >= 2)
+                    {
+                        string fn = args[1];
+                        if (args.Length >= 3)
+                        {
+                            // This option only transpiles to C++
+                            if (args[2] == "-CPP")
+                            {
+                                // Read C4 file.
+                                string C4_SRC = File.ReadAllText(fn);
+
+                                // This is the code without using C#'s unsafe option. Eventually, there will be a step to convert the methods to unsafe so we can use pointers.
+                                string CS_SRC_SAFE = "";
+
+                                // Allow C++ preprocessor directives to be parsed. This allows us to convert them back later. Right now, they are seen as global function statements.
+                                foreach (string ln in C4_SRC.Split(new char[] {'\n', '\r'}, StringSplitOptions.RemoveEmptyEntries))
+                                {
+                                    if (ln.StartsWith(@"#")) CS_SRC_SAFE += "CPP_SPECIAL_CHAR(\"HASH\", " + ToLiteral(ln) + ");" + Environment.NewLine;
+                                    else CS_SRC_SAFE += ln + Environment.NewLine;
+                                }
+
+                                // Now the C# can be parsed even if it's invalid, so we get the abstract syntax tree.
+                                var AST = CSharpSyntaxTree.ParseText(CS_SRC_SAFE);
+                                CSharpSyntaxNode ROOT = (CSharpSyntaxNode)AST.GetRoot();
+
+                                // C++ Code gen
+                                string CPP_SRC = "";
+                                
+                                // Generate actual C++ (debug = false)
+                                debug = false;
+                                AST2CPP(ROOT, ref CPP_SRC);
+                                CPP_SRC += Environment.NewLine + Environment.NewLine +
+                                    "int main() {" + Environment.NewLine + MainPath.Replace(".", "::") + 
+                                    "();" + Environment.NewLine + "}" + Environment.NewLine;
+                                File.WriteAllText("output.cpp", CPP_SRC);
+
+                                // Generate AST file for debugging (debug = true)
+                                CPP_SRC = "";
+                                debug = true;
+                                AST2CPP(ROOT, ref CPP_SRC);
+                                File.WriteAllText("output.ast", CPP_SRC);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid argument: " + args[2]);
+                            }
+                        }
+                        else
+                        {
+                            //TODO
+                            Console.WriteLine("//TODO");
+                        }
+                    }
+                    else
+                    {
+                        // Error no filename
+                        ConsoleColor color = Console.ForegroundColor;
+                        Console.Write("Build and run: C4 build ");
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write("-->");
+                        Console.ForegroundColor = color;
+                        Console.WriteLine("filename.C4");
+                    }
+                }
             }
         }
 
